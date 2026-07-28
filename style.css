@@ -1,0 +1,139 @@
+/* 着物判断支援ナビ V7(試作) — 和紙と柔らかな光。思想の言葉は明朝、操作の言葉はゴシック */
+:root {
+  --washi: #f7f3ea;
+  --washi-deep: #efe8d8;
+  --sumi: #3a352e;
+  --sumi-soft: #6b6459;
+  --akane: #a0532f;
+  --midori: #5a6b52;
+  --line: #ddd4c3;
+  --mincho: 'Shippori Mincho', serif;
+  --gothic: 'Inter', 'Hiragino Sans', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--gothic);
+  color: var(--sumi);
+  background:
+    radial-gradient(1200px 500px at 20% -5%, #fffdf6 0%, transparent 60%),
+    linear-gradient(180deg, var(--washi) 0%, var(--washi-deep) 100%);
+  min-height: 100vh;
+  line-height: 1.8;
+}
+.app-header { padding: 18px 24px; }
+.header-logo { font-family: var(--mincho); font-size: 1.05rem; letter-spacing: .12em; color: var(--sumi-soft); }
+.v7-tag { font-family: var(--gothic); font-size: .7rem; color: #fff; background: var(--midori); border-radius: 3px; padding: 2px 7px; margin-left: 6px; vertical-align: 2px; }
+.app-container { max-width: 720px; margin: 0 auto; padding: 8px 20px 64px; }
+.screen { display: none; animation: fadein .6s ease; }
+.screen.active { display: block; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none; } }
+
+/* 玄関口 */
+#screen-entrance { text-align: center; padding-top: 7vh; position: relative; }
+.entrance-light {
+  position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+  width: 420px; height: 320px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 246, 214, .9), transparent 70%);
+}
+.main-title { font-family: var(--mincho); font-weight: 600; font-size: 1.7rem; letter-spacing: .14em; margin-bottom: 26px; position: relative; }
+.entrance-message { font-family: var(--mincho); font-size: 1.08rem; margin-bottom: 30px; position: relative; }
+.entrance-note { font-size: .82rem; color: var(--sumi-soft); margin-bottom: 40px; }
+
+/* ボタン */
+.btn-primary, .btn-secondary, .btn-quiet {
+  font-family: var(--gothic); font-size: .95rem; border-radius: 999px; cursor: pointer;
+  padding: 13px 34px; border: 1px solid transparent; transition: all .25s ease; letter-spacing: .06em;
+}
+.btn-primary { background: var(--sumi); color: #fffdf6; }
+.btn-primary:hover { opacity: .85; }
+.btn-secondary { background: #fffdf6; color: var(--sumi); border-color: var(--sumi-soft); }
+.btn-quiet { background: transparent; color: var(--sumi-soft); border-color: var(--line); }
+.btn-primary.small, .btn-quiet.small { padding: 9px 20px; font-size: .85rem; }
+.nav-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.back-link { background: none; border: none; color: var(--sumi-soft); font-size: .85rem; cursor: pointer; margin: 6px 0 18px; }
+
+/* 語り場 */
+.talk-photo-row { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; }
+.talk-photo {
+  width: 96px; height: 120px; border-radius: 6px; overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: .68rem; color: var(--sumi-soft); background: #fffdf6; border: 1px dashed var(--line);
+}
+.talk-photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo-hint { font-size: .74rem; color: var(--sumi-soft); margin-top: 6px; }
+.chat-log {
+  background: #fffdf680; border: 1px solid var(--line); border-radius: 12px;
+  padding: 18px; min-height: 260px; max-height: 46vh; overflow-y: auto; margin-bottom: 12px;
+}
+.msg { margin-bottom: 14px; max-width: 88%; }
+.msg.ai { margin-right: auto; }
+.msg.user { margin-left: auto; text-align: right; }
+.msg .bubble {
+  display: inline-block; text-align: left; padding: 10px 16px; border-radius: 14px; font-size: .95rem;
+}
+.msg.ai .bubble { background: #fffdf6; border: 1px solid var(--line); font-family: var(--mincho); }
+.msg.user .bubble { background: var(--midori); color: #fffdf6; }
+.msg .who { font-size: .68rem; color: var(--sumi-soft); margin-bottom: 2px; }
+.chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
+.chat-input-row textarea {
+  flex: 1; font-family: var(--gothic); font-size: .95rem; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 12px; background: #fffdf6; resize: vertical; line-height: 1.7;
+}
+.ai-note { font-size: .74rem; color: var(--sumi-soft); margin-top: 10px; }
+
+/* 思い出メモ */
+.section-title { font-family: var(--mincho); font-size: 1.3rem; letter-spacing: .1em; margin-bottom: 10px; }
+.section-sub { font-size: .85rem; color: var(--sumi-soft); margin-bottom: 20px; }
+.memo-body {
+  background: #fffdf6; border: 1px solid var(--line); border-radius: 12px; padding: 24px;
+  font-family: var(--mincho); font-size: .95rem; white-space: pre-wrap;
+}
+.memo-note { text-align: center; font-size: .76rem; color: var(--sumi-soft); margin-top: 12px; }
+
+/* デジタル桐箪笥 */
+.tansu-title, .tansu-sub { color: #f3ead6; }
+#screen-tansu.active { animation: fadein 1s ease; }
+body.tansu-mode {
+  background: linear-gradient(180deg, #2b2620 0%, #1c1915 100%);
+}
+body.tansu-mode .header-logo, body.tansu-mode .app-footer p { color: #8d8474; }
+body.tansu-mode .back-link { color: #b0a894; }
+.tansu-room {
+  position: relative; min-height: 420px; border-radius: 14px; overflow: hidden;
+  background:
+    radial-gradient(500px 200px at 50% 0%, rgba(255, 232, 180, .10), transparent 70%),
+    linear-gradient(180deg, #33291d 0%, #241d14 70%, #1a140d 100%);
+  border: 1px solid #4a3d2c;
+  perspective: 900px;
+  padding: 40px 20px;
+  display: flex; flex-wrap: wrap; gap: 34px; justify-content: center; align-items: center;
+}
+.tansu-item { position: relative; transform-style: preserve-3d; transition: transform .8s ease; cursor: pointer; text-align: center; }
+.tansu-item .kimono-frame {
+  width: 130px; height: 175px; border-radius: 4px; overflow: hidden;
+  border: 1px solid #6b5a3f; box-shadow: 0 18px 40px rgba(0,0,0,.55), 0 0 30px rgba(255,226,160,.06);
+  background: #3d3122; display: flex; align-items: center; justify-content: center;
+  color: #cbbc9c; font-family: var(--mincho); font-size: .8rem;
+  transition: transform .8s ease, box-shadow .8s ease;
+}
+.tansu-item .kimono-frame img { width: 100%; height: 100%; object-fit: cover; }
+.tansu-item:hover .kimono-frame, .tansu-item.near .kimono-frame {
+  transform: scale(1.6) translateZ(40px);
+  box-shadow: 0 30px 70px rgba(0,0,0,.7), 0 0 60px rgba(255,226,160,.16);
+}
+.tansu-words {
+  position: absolute; left: 50%; top: 103%; transform: translateX(-50%);
+  width: 230px; opacity: 0; transition: opacity 1.2s ease .15s; pointer-events: none;
+  font-family: var(--mincho); color: #f3ead6; font-size: .85rem; line-height: 2; text-shadow: 0 2px 12px #000;
+}
+.tansu-item:hover .tansu-words, .tansu-item.near .tansu-words { opacity: 1; }
+.tansu-empty { color: #b0a894; font-family: var(--mincho); font-size: .9rem; text-align: center; width: 100%; }
+.tansu-note { font-size: .74rem; color: #8d8474; margin-top: 14px; text-align: center; }
+
+.app-footer { text-align: center; padding: 26px 10px 34px; }
+.app-footer p { font-size: .72rem; color: var(--sumi-soft); letter-spacing: .06em; }
+
+@media (max-width: 560px) {
+  .main-title { font-size: 1.35rem; }
+  .tansu-item .kimono-frame { width: 104px; height: 140px; }
+}

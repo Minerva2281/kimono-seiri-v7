@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="着物と向き合う時間を支えるアプリ(V7試作)。AIは判断しません。気持ちに寄り添い、専門家への橋を架けます。">
+  <!-- 「着物判断支援ナビ」は仮タイトル。文言はすべて創業者監修待ち(文言一覧_監修待ち.md 参照) -->
+  <title>着物判断支援ナビ V7(試作)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-logo">着物判断支援ナビ <span class="v7-tag">V7 試作</span></div>
+  </header>
+
+  <main class="app-container">
+
+    <!-- 画面1: 玄関口 -->
+    <section id="screen-entrance" class="screen active">
+      <div class="entrance-light"></div>
+      <h1 class="main-title">今日は、一枚と向き合う日</h1>
+      <p class="entrance-message">
+        全部決めなくて、大丈夫。<br>
+        今日は、気になる一枚のことを<br>
+        少しだけ、話してみませんか。
+      </p>
+      <p class="entrance-note">
+        このアプリは、売る・捨てるをおすすめするものではありません。<br>
+        AIは判断しません。断定もしません。<br>
+        あなたの言葉に耳を傾け、必要なときに、詳しい方への橋を架けます。
+      </p>
+      <div class="nav-actions">
+        <button id="go-talk" class="btn-primary">語り場へ</button>
+        <button id="go-tansu" class="btn-quiet">桐箪笥を見る</button>
+      </div>
+    </section>
+
+    <!-- 画面2: 語り場 -->
+    <section id="screen-talk" class="screen">
+      <button class="back-link" data-target="screen-entrance">← 玄関口へ戻る</button>
+
+      <div class="talk-photo-row">
+        <div id="talk-photo" class="talk-photo empty">写真は<br>なくても<br>大丈夫です</div>
+        <div class="talk-photo-actions">
+          <button id="add-photo-btn" class="btn-quiet small">📷 写真を添える(任意)</button>
+          <p class="photo-hint">畳んだままの写真でも、昔の着用写真でも構いません。</p>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" style="display:none">
+      </div>
+
+      <div id="chat-log" class="chat-log"></div>
+
+      <div class="chat-input-row">
+        <textarea id="chat-input" rows="2" placeholder="思い浮かんだことを、そのままどうぞ。うまく書く必要はありません。"></textarea>
+        <button id="send-btn" class="btn-primary small">送る</button>
+      </div>
+
+      <p class="ai-note">これはAIとの対話です。AIは間違えることがあります。着物の種類や状態の判断はいたしません。正確なことは、詳しい方と一緒に確かめられます。</p>
+
+      <div class="nav-actions">
+        <button id="make-memo-btn" class="btn-secondary">思い出メモにまとめる</button>
+        <button id="end-today-btn" class="btn-quiet">今日はここまでにする</button>
+      </div>
+    </section>
+
+    <!-- 思い出メモ(紹介状) -->
+    <section id="screen-memo" class="screen">
+      <button class="back-link" data-target="screen-talk">← 語り場へ戻る</button>
+      <h2 class="section-title">思い出メモ</h2>
+      <p class="section-sub">今日語られたことを、あなたのものとして残します。詳しい方に相談するときの「紹介状」にもなります。</p>
+      <div id="memo-body" class="memo-body"></div>
+      <div class="nav-actions">
+        <button id="save-memo-btn" class="btn-primary">メモを手元に保存する</button>
+        <button id="to-tansu-btn" class="btn-secondary">桐箪笥に飾る</button>
+      </div>
+      <p class="memo-note">この記録はあなたのものです。この端末に残ります。</p>
+    </section>
+
+    <!-- 画面3: デジタル桐箪笥 -->
+    <section id="screen-tansu" class="screen">
+      <button class="back-link" data-target="screen-entrance">← 玄関口へ戻る</button>
+      <h2 class="section-title tansu-title">デジタル桐箪笥</h2>
+      <p class="section-sub tansu-sub">向き合った一枚が、ここに静かに掛かっています。近づくと、思い出の言葉が浮かびます。</p>
+      <div id="tansu-room" class="tansu-room">
+        <!-- JSで描画 -->
+      </div>
+      <p class="tansu-note">ここにあるのは記録の写しです。あなたの手元にも保存できます。</p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>© 2026 着物判断支援ナビ — 物を大切にする。手放す人の心を大切にする。</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

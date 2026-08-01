@@ -39,24 +39,39 @@ const SYSTEM_PROMPT = `あなたは「KOTODAMA」。着物との向き合いを�
 【文体の見本】
 「そうでしたか。聞かせてくださって、ありがとうございます。その一枚は、どなたが、いつ頃お使いだったものですか。」`;
 
-// 禁止語(検出用)。名前を付けて、言い直し指示に使う。
-const BANNED = [
-  ['処分', /処分/], ['捨てる', /捨て/], ['断捨離', /断捨離/], ['不用品', /不用品/],
-  ['査定', /査定/], ['鑑定', /鑑定/], ['診断', /診断/], ['買取', /買取/], ['現金化', /現金化/],
-  ['価値がある・ない', /価値が(あ|な)/], ['高く売れる', /高く売れ/], ['もったいない', /もったいない/],
-  ['早めに', /早めに/], ['今すぐ', /今すぐ/], ['〜すべき', /すべきです/], ['おすすめします', /おすすめし/],
-  ['種類の断定', /(紬|訪問着|小紋|色無地|振袖|留袖|付け下げ|大島|結城)(です|ですね|だと思われ|と思われ|でしょう)/],
-  ['擬人化', /(泣いてい|喜んでい)/]
+// 【常に禁止】AIの口から絶対に出ない言葉(利用者が使っていても)
+const ALWAYS_BANNED = [
+  ['擬人化', /(泣いてい|喜んでい)/],
+  ['高く売れる', /高く売れ/],
+  ['もったいない', /もったいない/],
+  ['急かし', /(早めに|今すぐ)/],
+  ['指示口調', /(すべきです|おすすめし)/],
+  ['断捨離', /断捨離/],
+  ['不用品', /不用品/]
 ];
+
+// 【受け取りOK】利用者が使った場合に限り、AIも応答で使ってよい言葉
+// (ことばの設計書:禁止はアプリが発する言葉への規律。利用者の言葉は自由であり訂正しない)
+const MIRROR_OK = ['処分', '捨て', '査定', '鑑定', '診断', '買取', '現金化', '価値があ', '価値がな'];
+
+// 着物の種類名も同じ扱い(利用者が使った種類名は受け取ってよい)
+const KIMONO_TYPES = ['紬', '訪問着', '小紋', '色無地', '振袖', '留袖', '付け下げ', '大島', '結城'];
 
 const SAFE_FALLBACK =
   'ごめんなさい、いまの私の言葉は、うまく整いませんでした。急がなくて大丈夫です。よろしければ、その着物について、いま思い浮かんだことを、そのまま聞かせてください。';
 
-function violations(text) {
+function violations(text, userText) {
   if (!text) return [];
+  const ut = userText || '';
   const hits = [];
-  for (const [name, re] of BANNED) {
+  for (const [name, re] of ALWAYS_BANNED) {
     if (re.test(text)) hits.push(name);
+  }
+  for (const w of MIRROR_OK) {
+    if (text.includes(w) && !ut.includes(w)) hits.push(w + '(利用者が使っていない言葉)');
+  }
+  for (const t of KIMONO_TYPES) {
+    if (text.includes(t) && !ut.includes(t)) hits.push('種類の言及(' + t + ')');
   }
   const q = (text.match(/[??]/g) || []).length;
   if (q >= 3) hits.push('質問が多すぎる');
@@ -147,22 +162,25 @@ module.exports = async (req, res) => {
       res.status(400).json({ error: 'bad request' }); return;
     }
 
+    const userText = apiMessages.filter(m => m.role === 'user').map(m => m.content).join(' ');
+
     // 1回目
     let raw = polish(await call(apiMessages));
-    let hits = violations(raw);
+    let hits = violations(raw, userText);
     console.log('reply1 hits:', hits.join(',') || 'none', '| head:', raw.slice(0, 60));
 
     // 禁止語が混じっていたら、一度だけ言い直しを求める(自己修正)
     if (raw && hits.length > 0) {
       const fixRequest =
         `いまのあなたの返答には、使わないと決めている言葉(${hits.join('、')})が含まれていました。` +
-        `同じ気持ちが伝わるように、その言葉を使わずに言い直してください。質問は一つだけ、3文以内で。`;
+        `同じ気持ちが伝わるように、その言葉を使わずに言い直してください。質問は一つだけ、3文以内で。` +
+        `言い直しであることには触れず、自然に応えてください。`;
       const retryMessages = apiMessages.concat([
         { role: 'assistant', content: raw },
         { role: 'user', content: fixRequest }
       ]);
       const raw2 = polish(await call(retryMessages));
-      const hits2 = violations(raw2);
+      const hits2 = violations(raw2, userText);
       console.log('reply2 hits:', hits2.join(',') || 'none', '| head:', raw2.slice(0, 60));
       if (raw2 && hits2.length === 0) {
         res.status(200).json({ reply: raw2 }); return;

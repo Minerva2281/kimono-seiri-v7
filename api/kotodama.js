@@ -96,7 +96,10 @@ async function callAnthropic(key, apiMessages) {
     throw new Error('anthropic ' + r.status);
   }
   const d = await r.json();
-  return (d.content && d.content[0] && d.content[0].text) || '';
+  // 返答は複数ブロックで届くことがある(思考ブロック等)。type==='text' のブロックを探して返す。
+  const blocks = Array.isArray(d.content) ? d.content : [];
+  const textBlock = blocks.find(b => b && b.type === 'text' && b.text);
+  return (textBlock && textBlock.text) || '';
 }
 
 async function callOpenAI(key, apiMessages) {

@@ -87,26 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function kotodamaReply(userText) {
-    // まずAPIを試す(初回のみ判定)。だめなら練習モードへ。
-    if (state.apiMode !== false) {
-      try {
-        const res = await fetch('/api/kotodama', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: state.messages.slice(-20) })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.reply) {
-            state.apiMode = true; save();
-            return data.reply;
-          }
+    // 毎回まずAPIを試す(過去に失敗していても、次の送信で必ず試し直す)。だめなら練習モードへ。
+    try {
+      const res = await fetch('/api/kotodama', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: state.messages.slice(-20) })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.reply) {
+          state.apiMode = true; save();
+          return data.reply;
         }
-        throw new Error('api unavailable');
-      } catch (e) {
-        state.apiMode = false; save();
       }
-    }
+    } catch (e) { /* 接続失敗。今回は練習モードで応じる */ }
+    state.apiMode = false; save();
     // 練習モード: 台本を一つずつ。終端では静かに受け止める。
     const idx = Math.min(state.stage, SCRIPT.length - 1);
     state.stage = Math.min(state.stage + 1, SCRIPT.length - 1);

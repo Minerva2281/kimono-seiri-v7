@@ -115,6 +115,7 @@ body.tansu-mode .back-link { color: #b0a894; }
   background: #3d3122; display: flex; align-items: center; justify-content: center;
   color: #cbbc9c; font-family: var(--mincho); font-size: .8rem;
   transition: transform .8s ease, box-shadow .8s ease;
+  transform-origin: 50% 100%; /* 下端を基準に拡大し、下の思い出の言葉と重ならないようにする */
 }
 .tansu-item .kimono-frame img { width: 100%; height: 100%; object-fit: cover; }
 .tansu-item:hover .kimono-frame, .tansu-item.near .kimono-frame {

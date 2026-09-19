@@ -215,7 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
       text: firstStoryLine(),
       photo: state.photo
     });
+    // この一枚は飾り終えたので、次の一枚のために語り場をまっさらに戻す
+    state.messages = [];
+    state.photo = null;
+    state.stage = 0;
     save();
+    chatLog.innerHTML = '';
+    talkPhoto.classList.add('empty');
+    talkPhoto.innerHTML = '写真は<br>なくても<br>大丈夫です';
     show('screen-tansu');
   });
 

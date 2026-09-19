@@ -50,6 +50,7 @@ body {
 .btn-quiet { background: transparent; color: var(--sumi-soft); border-color: var(--line); }
 .btn-primary.small, .btn-quiet.small { padding: 9px 20px; font-size: .85rem; }
 .nav-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.next-item-actions { margin-top: 10px; }
 .back-link { background: none; border: none; color: var(--sumi-soft); font-size: .85rem; cursor: pointer; margin: 6px 0 18px; }
 
 /* 語り場 */

@@ -208,14 +208,14 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(a.href);
   });
 
-  document.getElementById('to-tansu-btn').addEventListener('click', () => {
+  // 今の一着を桐箪笥へ記録し、次の一着のために語り場をまっさらに戻す(共通処理)
+  function commitCurrentToTansu() {
     const d = new Date();
     state.memos.push({
       date: `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`,
       text: firstStoryLine(),
       photo: state.photo
     });
-    // この一枚は飾り終えたので、次の一枚のために語り場をまっさらに戻す
     state.messages = [];
     state.photo = null;
     state.stage = 0;
@@ -223,7 +223,18 @@ document.addEventListener('DOMContentLoaded', () => {
     chatLog.innerHTML = '';
     talkPhoto.classList.add('empty');
     talkPhoto.innerHTML = '写真は<br>なくても<br>大丈夫です';
+  }
+
+  document.getElementById('to-tansu-btn').addEventListener('click', () => {
+    commitCurrentToTansu();
     show('screen-tansu');
+  });
+
+  // 語り場から直接: この一着を飾って、その場で次の一着を話し始める
+  document.getElementById('new-item-btn').addEventListener('click', () => {
+    commitCurrentToTansu();
+    show('screen-talk');
+    startTalkIfNeeded();
   });
 
   function firstStoryLine() {
